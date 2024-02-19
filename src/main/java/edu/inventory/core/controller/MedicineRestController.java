@@ -16,11 +16,13 @@ public class MedicineRestController {
     @Autowired
     private MedicineRepository medicineRepository;
 
+    //Endpoint para obtener el listado de medicamentos
     @GetMapping
     public List<Medicine> getMedicines(){
         return medicineRepository.findAll();
     }
 
+    //Endpoint para obtener un medicamento por id
     @GetMapping("{idmedicine}")
     public ResponseEntity<Medicine> getMedicineById(@PathVariable Long idmedicine) {
         Medicine medicine = medicineRepository.findById(idmedicine).orElse(null);
@@ -31,14 +33,14 @@ public class MedicineRestController {
         }
     }
 
-    // Endpoint para crear un nuevo producto
+    // Endpoint para crear un nuevo medicamento
     @PostMapping
     public ResponseEntity<Medicine> createMedicine(@RequestBody Medicine medicine) {
         Medicine newMedicine = medicineRepository.save(medicine);
         return ResponseEntity.status(HttpStatus.CREATED).body(newMedicine);
     }
 
-    // Endpoint para actualizar un producto existente
+    // Endpoint para actualizar un medicamento existente
     @PutMapping("/{idmedicine}")
     public ResponseEntity<Medicine> updateMedicine(@PathVariable Long idmedicine, @RequestBody Medicine updatedMedicine) {
         Medicine existingMedicine = medicineRepository.findById(idmedicine).orElse(null);
@@ -56,7 +58,7 @@ public class MedicineRestController {
         }
     }
 
-    // Endpoint para eliminar un producto por su ID
+    // Endpoint para eliminar un medicamento por su ID
     @DeleteMapping("/{idmedicine}")
     public ResponseEntity<Void> deleteMedicine(@PathVariable Long idmedicine) {
         medicineRepository.deleteById(idmedicine);
