@@ -2,6 +2,7 @@ package edu.inventory.core.controller;
 
 import edu.inventory.core.entity.Medicine;
 import edu.inventory.core.repository.MedicineRepository;
+import edu.inventory.core.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,19 +16,21 @@ public class MedicineRestController {
 
     @Autowired
     private MedicineRepository medicineRepository;
+    @Autowired
+    private UserRepository userRepository;
 
     //Endpoint para obtener el listado de medicamentos
     @GetMapping
-    public List<Medicine> getMedicines(){
-        return medicineRepository.findAll();
+    public ResponseEntity<?> getMedicines(){
+        return ResponseEntity.ok(medicineRepository.findAll());
     }
 
-    //Endpoint para obtener un medicamento por id
-    @GetMapping("{idmedicine}")
-    public ResponseEntity<Medicine> getMedicineById(@PathVariable Long idmedicine) {
-        Medicine medicine = medicineRepository.findById(idmedicine).orElse(null);
-        if (medicine != null) {
-            return ResponseEntity.ok(medicine);
+    //Endpoint para obtener medicamentos por nombre
+    @GetMapping("{medicine_name}")
+    public ResponseEntity<?> getMedicineByName(@PathVariable String medicine_name) {
+        List<Medicine> medicineList = medicineRepository.findAllByName(medicine_name);
+        if (medicineList != null) {
+            return ResponseEntity.ok(medicineList);
         } else {
             return ResponseEntity.notFound().build();
         }
@@ -35,14 +38,23 @@ public class MedicineRestController {
 
     // Endpoint para crear un nuevo medicamento
     @PostMapping
-    public ResponseEntity<Medicine> createMedicine(@RequestBody Medicine medicine) {
-        Medicine newMedicine = medicineRepository.save(medicine);
-        return ResponseEntity.status(HttpStatus.CREATED).body(newMedicine);
+    public ResponseEntity<?> createMedicine(@RequestBody Medicine medicine) {
+        List<Medicine> medicineList = medicineRepository.findAllByName(medicine.getMedicine_name());
+        if(medicineList != null){
+            for(Medicine medicine1: medicineList) {
+                if (medicine.getMedicine_exp_date().equals(medicine1.getMedicine_exp_date())) {
+                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+                }
+            }
+        }
+        Medicine medicineCreate = medicineRepository.save(medicine);
+        return ResponseEntity.status(HttpStatus.CREATED).body(medicineCreate);
     }
+
 
     // Endpoint para actualizar un medicamento existente
     @PutMapping("/{idmedicine}")
-    public ResponseEntity<Medicine> updateMedicine(@PathVariable Long idmedicine, @RequestBody Medicine updatedMedicine) {
+    public ResponseEntity<?> updateMedicine(@PathVariable Long idmedicine, @RequestBody Medicine updatedMedicine) {
         Medicine existingMedicine = medicineRepository.findById(idmedicine).orElse(null);
         if (existingMedicine != null) {
             if(updatedMedicine.getMedicine_name() != null){

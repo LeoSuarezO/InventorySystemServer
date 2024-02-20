@@ -41,8 +41,4 @@ public class UserRestController {
         return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(user);
     }
 
-
-
-
-
 }
